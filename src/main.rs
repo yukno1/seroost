@@ -8,6 +8,8 @@ use xml::reader::{EventReader, XmlEvent};
 
 use crate::lexer::Lexer;
 
+use serde_json::{Deserializer, Result, Serializer};
+
 mod lexer;
 fn index_document(doc_content: &str) -> HashMap<String, usize> {
     todo!()
@@ -31,9 +33,21 @@ type TermFreq = HashMap<String, usize>;
 type TermFreqIndex = HashMap<PathBuf, TermFreq>;
 
 fn main() -> io::Result<()> {
+    let index_path = "index.json";
+    let index_file = File::open(index_path)?;
+    println!("Reading {index_path}...");
+    let tf_index: TermFreqIndex = serde_json::from_reader(index_file).expect("serde read success");
+    println!(
+        "{index_path} contains {count} files",
+        count = tf_index.len()
+    );
+    Ok(())
+}
+
+fn main2() -> io::Result<()> {
     let dir_path = "docs.gl\\gl4";
     let dir = fs::read_dir(dir_path)?;
-    let top_n = 10;
+    let _top_n = 10;
     let mut tf_index = TermFreqIndex::new();
 
     for file in dir {
@@ -74,9 +88,10 @@ fn main() -> io::Result<()> {
         // }
     }
 
-    for (path, tf) in tf_index {
-        println!("{path:?} has {count} unique tokens", count = tf.len());
-    }
+    let index_path = "index.json";
+    println!("Saving {index_path}...");
+    let index_file = File::create(index_path)?;
+    serde_json::to_writer(index_file, &tf_index).expect("serde works fine");
 
     Ok(())
 }

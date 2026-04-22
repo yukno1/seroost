@@ -43,8 +43,8 @@ impl<'a> Lexer<'a> {
             return Some(self.chop_while(|x| x.is_numeric()));
         }
 
-        if self.content[0].is_alphabetic() || self.content[0] == '_' {
-            return Some(self.chop_while(|x| x.is_alphanumeric() || *x == '_'));
+        if self.content[0].is_alphabetic() {
+            return Some(self.chop_while(|x| x.is_alphanumeric()));
         }
 
         // if weird char, treat as single token
